@@ -3,12 +3,11 @@ import Link from "next/link";
 type StoryRowProps = {
   title: string;
   status: string;
-  created: string;
-  action: string;
+  createdAt: string;
   id: string;
 };
 
-export function StoryRow({ title, status, created, action, id }: StoryRowProps) {
+export function StoryRow({ title, status, createdAt, id }: StoryRowProps) {
   // Color for status
   const statusColor = status === "Completed"
     ? "bg-[#21364A] text-white"
@@ -24,9 +23,9 @@ export function StoryRow({ title, status, created, action, id }: StoryRowProps) 
       <div className="flex items-center px-4 w-[199px] h-[72px]">
         <span className={`rounded-xl px-4 py-1 text-[14px] font-medium ${statusColor}`} style={{fontFamily: 'sans-serif'}}>{status}</span>
       </div>
-      <div className="flex items-center px-4 w-[275px] h-[72px] text-[#8FADCC] text-[14px]" style={{fontFamily: 'sans-serif'}}>{created}</div>
+      <div className="flex items-center px-4 w-[275px] h-[72px] text-[#8FADCC] text-[14px]" style={{fontFamily: 'sans-serif'}}>{createdAt}</div>
       <div className="flex items-center px-4 w-[171px] h-[72px]">
-        <Link href={`/stories/${id}`} className={actionColor} style={{fontFamily: 'sans-serif'}}>{action}</Link>
+        <Link href={`/stories/${id}`} className={actionColor} style={{fontFamily: 'sans-serif'}}>View</Link>
       </div>
     </div>
   );

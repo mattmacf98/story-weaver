@@ -1,6 +1,13 @@
+"use client";
+
 import StoryWeaverNav from "../components/StoryWeaverNav";
+import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
+import { useState } from "react";
 
 export default function Home() {
+  const [prompt, setPrompt] = useState("");
+  const { startStory } = useStoryWeaver();
+
   return (
     <div className="min-h-screen bg-[#0F1A24]">
       <StoryWeaverNav />
@@ -15,10 +22,12 @@ export default function Home() {
               {/* Placeholder for input (not interactive) */}
               <input
                 type="text"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
                 className="w-full bg-transparent text-white px-4 py-3 outline-none placeholder:text-[#8FADCC] pr-[120px]"
                 placeholder="Type your story prompt..."
               />
-              <button className=" bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors">Start Story</button>
+              <button className=" bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => startStory(prompt)}>Start Story</button>
             </div>
           </div>
         </section>
