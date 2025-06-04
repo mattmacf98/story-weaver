@@ -8,6 +8,9 @@ interface StoryWeaverContextType {
   startStory: (prompt: string) => void;
   getStory: (id: string) => Promise<any>;
   getStories: () => Promise<any[]>;
+  getImageUrl: (key: string) => Promise<string>;
+  getAudioUrl: (key: string) => Promise<string>;
+  getVideoUrl: (key: string) => Promise<string>;
 }
 
 const StoryWeaverContext = createContext<StoryWeaverContextType | undefined>(undefined);
@@ -49,10 +52,32 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     return data.data;
   };
 
+  const getImageUrl = async (key: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_image?key=${key}`);
+    const data = await response.json();
+    return data.data;
+  };
+
+  const getAudioUrl = async (key: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_audio?key=${key}`);
+    const data = await response.json();
+    return data.data;
+  };
+
+  const getVideoUrl = async (key: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_video?key=${key}`);
+    const data = await response.json();
+    return data.data;
+  };
+
+
   const value = {
     startStory,
     getStory,
     getStories,
+    getImageUrl,
+    getAudioUrl,
+    getVideoUrl,
   };
 
   return (

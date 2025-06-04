@@ -7,64 +7,6 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
 
-const story: Story = {
-  id: "1",
-  title: "The Enchanted Forest",
-  createdAt: "2024-01-15",
-  storyText: {
-    createdAt: "2024-01-15",
-    text: "Once upon a time, in a land of enchantment, there was a forest that was filled with magic and wonder. The trees were tall and the plants were lush and green. The animals were friendly and the birds were chirping. The sun was shining and the sky was blue. The Enchanted Forest was a place of magic and wonder.",
-  },
-  chunks: [
-    {
-      createdAt: "2024-01-15",
-      text: "The Enchanted Forest is a place of magic and wonder.",
-    },
-  ],
-  imagePrompts: [
-    {
-      createdAt: "2024-01-15",
-      text: "The Enchanted Forest is a place of magic and wonder.",
-    },
-  ],
-  summary: {
-    createdAt: "2024-01-15",
-    text: "The Enchanted Forest is a place of magic and wonder.",
-  },
-  nextOptions: [
-    {
-      createdAt: "2024-01-15",
-      text: "The Enchanted Forest is a place of magic and wonder.",
-    },
-  ],
-  images: [
-    {
-      createdAt: "2024-01-15",
-      key: "jsadasduasf",
-      mimeType: "image/png",
-    },
-  ],
-  audio: [
-    {
-      createdAt: "2024-01-15",
-      key: "jsadasduasf",
-      mimeType: "audio/mpeg",
-    },
-  ],
-  video: [
-    {
-      createdAt: "2024-01-15",
-      key: "jsadasduasf",
-      mimeType: "video/mp4",
-    },
-  ],
-  finalVideo: {
-    createdAt: "2024-01-15",
-    key: "jsadasduasf",
-    mimeType: "video/mp4",
-  },
-}
-
 export default function StoryPage() {
   const { getStory } = useStoryWeaver();
   const params = useParams();
@@ -118,11 +60,11 @@ export default function StoryPage() {
             {story.images && 
                 <PipelineItem stage="Image Generation" completedAt={story.images.last_updated} />
             }
-            {story.audio && 
-                <PipelineItem stage="Audio Generation" completedAt={story.audio.last_updated} />
+            {story.audios && 
+                <PipelineItem stage="Audio Generation" completedAt={story.audios.last_updated} />
             }
-            {story.video && 
-                <PipelineItem stage="Video Generation" completedAt={story.video.last_updated} />
+            {story.videos && 
+                <PipelineItem stage="Video Generation" completedAt={story.videos.last_updated} />
             }
             {story.finalVideo && 
                 <PipelineItem stage="Final Video Generation" completedAt={story.finalVideo.last_updated} />
@@ -192,13 +134,13 @@ const ResourcesSection = ({story}: {story: any}) => {
                         Images
                     </button>
                 }
-                {story.audio && 
-                    <button className={`px-4 py-2 text-white rounded-lg hover:bg-[#21364A] transition-colors ${selectedResource === 'audio' ? 'bg-[#21364A]' : 'bg-[#172633]'}`} onClick={() => setSelectedResource('audio')}>
+                {story.audios && 
+                    <button className={`px-4 py-2 text-white rounded-lg hover:bg-[#21364A] transition-colors ${selectedResource === 'audios' ? 'bg-[#21364A]' : 'bg-[#172633]'}`} onClick={() => setSelectedResource('audios')}>
                         Audio
                     </button>
                 }
-                {story.video && 
-                    <button className={`px-4 py-2 text-white rounded-lg hover:bg-[#21364A] transition-colors ${selectedResource === 'video' ? 'bg-[#21364A]' : 'bg-[#172633]'}`} onClick={() => setSelectedResource('video')}>
+                {story.videos && 
+                    <button className={`px-4 py-2 text-white rounded-lg hover:bg-[#21364A] transition-colors ${selectedResource === 'video' ? 'bg-[#21364A]' : 'bg-[#172633]'}`} onClick={() => setSelectedResource('videos')}>
                         Video
                     </button>
                 }
@@ -213,7 +155,7 @@ const ResourcesSection = ({story}: {story: any}) => {
                 <div className="bg-[#172633] rounded-lg p-6">
                     <div className="grid grid-cols-2 gap-4">
                         {story.chunkTexts.chunks.map((chunk: any) => (
-                            <div className="bg-[#21364A] rounded-lg p-4">
+                            <div key={chunk} className="bg-[#21364A] rounded-lg p-4">
                                 <TextResource text={chunk} />
                             </div>
                         ))}
@@ -225,7 +167,7 @@ const ResourcesSection = ({story}: {story: any}) => {
                 <div className="bg-[#172633] rounded-lg p-6">
                     <div className="grid grid-cols-2 gap-4">
                         {story.imagePrompts.prompts.map((prompt: any) => (
-                            <div className="bg-[#21364A] rounded-lg p-4">
+                            <div key={prompt} className="bg-[#21364A] rounded-lg p-4">
                                 <TextResource text={prompt} />
                             </div>
                         ))}
@@ -237,7 +179,7 @@ const ResourcesSection = ({story}: {story: any}) => {
                 <div className="bg-[#172633] rounded-lg p-6">
                     <div className="grid grid-cols-2 gap-4">
                         {story.nextOptions.options.map((option: any) => (
-                            <div className="bg-[#21364A] rounded-lg p-4">
+                            <div key={option} className="bg-[#21364A] rounded-lg p-4">
                                 <TextResource text={option} />
                             </div>
                         ))}
@@ -250,7 +192,42 @@ const ResourcesSection = ({story}: {story: any}) => {
                     <TextResource text={story.summary.text} />
                 </div>
             }
-            
+
+            {selectedResource === "images" && 
+                <div className="bg-[#172633] rounded-lg p-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        {story.images.images.map((image: any) => (
+                            <div key={image.key} className="bg-[#21364A] rounded-lg p-4">
+                                <ImageResource imageKey={image.key} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            }
+
+            {selectedResource === "audios" &&
+                <div className="bg-[#172633] rounded-lg p-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        {story.audios.audios.map((audio: any) => (
+                            <div key={audio.key} className="bg-[#21364A] rounded-lg p-4">
+                                <AudioResource audioKey={audio.key} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            }
+
+            {selectedResource === "videos" && 
+                <div className="bg-[#172633] rounded-lg p-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        {story.videos.videos.map((video: any) => (
+                            <div key={video.key} className="bg-[#21364A] rounded-lg p-4">
+                                <VideoResource videoKey={video.key} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            }
         </div>
     )
 }
@@ -264,26 +241,71 @@ const TextResource = ({text}: {text: string}) => {
     )
 }
 
-const ImageResource = ({image}: {image: string}) => {
+const ImageResource = ({imageKey}: {imageKey: string}) => {
+    const { getImageUrl } = useStoryWeaver();
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchImage = async () => {
+            const imageUrl = await getImageUrl(imageKey);
+            setImageUrl(imageUrl);
+        }
+        fetchImage();
+    }, [imageKey]);
+
+    if (!imageUrl) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="flex flex-col">
-            <img src={image} className="w-full h-full object-cover" />
+            <img src={imageUrl} className="w-full h-full object-cover" />
         </div>
     )
 }
 
-const AudioResource = ({audio}: {audio: string}) => {
+const AudioResource = ({audioKey}: {audioKey: string}) => {
+    const { getAudioUrl } = useStoryWeaver();
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchAudio = async () => {
+            const audioUrl = await getAudioUrl(audioKey);
+            setAudioUrl(audioUrl);
+        }
+        fetchAudio();
+    }, [audioKey]);
+
+    if (!audioUrl) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="flex flex-col">
-            <audio src={audio} controls />
+            <audio src={audioUrl} controls />
         </div>
     )
 }
 
-const VideoResource = ({video}: {video: string}) => {
+const VideoResource = ({videoKey}: {videoKey: string}) => {
+    const { getVideoUrl } = useStoryWeaver();
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchVideo = async () => {
+            const videoUrl = await getVideoUrl(videoKey);
+            setVideoUrl(videoUrl);
+        }
+        fetchVideo();
+    }, [videoKey]);
+
+    if (!videoUrl) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="flex flex-col">
-            <video src={video} controls />
+            <video src={videoUrl} controls />
         </div>
     )
 }
