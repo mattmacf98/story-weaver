@@ -7,10 +7,28 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
 
+const requiredResources = [
+  "audios",
+  "chunkTexts",
+  "imagePrompts",
+  "images",
+  "nextOptions",
+  "summary",
+  "videos",
+]
+
 export default function StoryPage() {
-  const { getStory } = useStoryWeaver();
+  const { getStory, startStory } = useStoryWeaver();
   const params = useParams();
   const [story, setStory] = useState<any>(null);
+  const [missingResources, setMissingResources] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (story) {
+            const missing = requiredResources.filter((resource) => !story[resource]);
+            setMissingResources(missing);
+        }
+    }, [story]);
 
   useEffect(() => {
     const fetchStory = async () => {
@@ -72,6 +90,26 @@ export default function StoryPage() {
           </div>
         </div>
 
+        {missingResources.length > 0 && (
+          <div className="pb-10 w-full max-w-5xl">
+            <h3 className="text-xl font-bold mb-8 text-white">Missing Resources</h3>
+            <div className="flex flex-row gap-4">
+              {missingResources.map((resource) => (
+                <div key={resource} className="px-4 py-2 bg-[#172633] text-red-500 rounded-lg">
+                  {resource}
+                </div>
+              ))}
+            </div>
+            <div className="mt-6">
+              <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => {
+                startStory(story.prompt, story.id);
+              }}>
+                Generate Missing Resources
+              </button>
+            </div>
+          </div>
+        )}
+
         <ResourcesSection story={story} />
       </main>
     </div>
@@ -96,7 +134,7 @@ const PipelineItem = ({stage, completedAt}: {stage: string, completedAt: string}
 
 const ResourcesSection = ({story}: {story: any}) => {
     const [selectedResource, setSelectedResource] = useState<string | null>(null);
-
+    
     if (!story) {
         return <div>Loading...</div>;
     }
@@ -202,6 +240,12 @@ const ResourcesSection = ({story}: {story: any}) => {
                             </div>
                         ))}
                     </div>
+                </div>
+            }
+
+            {selectedResource === "summary" && 
+                <div className="bg-[#172633] rounded-lg p-6">
+                    <TextResource text={story.summary} />
                 </div>
             }
 

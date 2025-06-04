@@ -5,7 +5,7 @@ import { createContext, useContext, ReactNode } from 'react';
 const BACKEND_URL = "http://localhost:5000";
 
 interface StoryWeaverContextType {
-  startStory: (prompt: string) => void;
+  startStory: (prompt: string, storyId?: string) => void;
   getStory: (id: string) => Promise<any>;
   getStories: () => Promise<any[]>;
   getImageUrl: (key: string) => Promise<string>;
@@ -28,13 +28,20 @@ interface StoryWeaverProviderProps {
 }
 
 export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
-  const startStory = async (prompt: string) => {
+  const startStory = async (prompt: string, storyId?: string) => {
+    const body: any = {
+      prompt,
+    }
+    if (storyId) {
+      body.story_id = storyId;
+    }
+    
     const response = await fetch(`${BACKEND_URL}/api/start_story`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify(body),
     });
     const data = await response.json();
     console.log(data);
