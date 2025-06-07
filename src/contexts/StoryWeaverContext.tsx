@@ -6,11 +6,13 @@ const BACKEND_URL = "http://localhost:5000";
 
 interface StoryWeaverContextType {
   startStory: (prompt: string, storyId?: string) => void;
+  continueStory: (prevStoryId: string, nextOption: string, storyId?: string) => void;
   getStory: (id: string) => Promise<any>;
   getStories: () => Promise<any[]>;
   getImageUrl: (key: string) => Promise<string>;
   getAudioUrl: (key: string) => Promise<string>;
   getVideoUrl: (key: string) => Promise<string>;
+  publishStory: (storyId: string) => Promise<any>;
 }
 
 const StoryWeaverContext = createContext<StoryWeaverContextType | undefined>(undefined);
@@ -47,6 +49,26 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     console.log(data);
   };
 
+  const continueStory = async (prevStoryId: string, nextOption: string, storyId?: string) => {
+    const body: any = {
+      prev_story_id: prevStoryId,
+      next_option: nextOption,
+    }
+    if (storyId) {
+      body.story_id = storyId;
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/continue_story`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json();
+    console.log(data);
+  }
+
   const getStory = async (id: string) => {
     const response = await fetch(`${BACKEND_URL}/api/get_story?id=${id}`);
     const data = await response.json();
@@ -77,14 +99,24 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     return data.data;
   };
 
+  const publishStory = async (storyId: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/publish_story?id=${storyId}`, {
+      method: 'POST'
+    });
+    const data = await response.json();
+    return data.data;
+  };
+
 
   const value = {
     startStory,
+    continueStory,
     getStory,
     getStories,
     getImageUrl,
     getAudioUrl,
     getVideoUrl,
+    publishStory,
   };
 
   return (

@@ -18,10 +18,12 @@ const requiredResources = [
 ]
 
 export default function StoryPage() {
-  const { getStory, startStory } = useStoryWeaver();
+  const { getStory, startStory, continueStory, getStories } = useStoryWeaver();
   const params = useParams();
   const [story, setStory] = useState<any>(null);
   const [missingResources, setMissingResources] = useState<string[]>([]);
+  const [nextStory, setNextStory] = useState<any>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
     useEffect(() => {
         if (story) {
@@ -33,9 +35,14 @@ export default function StoryPage() {
   useEffect(() => {
     const fetchStory = async () => {
       const story = await getStory(params.id as string);
+      // TODO: this is very inefficient, we should only fetch the next story
+      const allStories = await getStories();
+      const nextStory = allStories.find((s: any) => s.prevStoryId === story.id) || null;
+      setNextStory(nextStory);
       console.log(story);
       setStory(story);
     }
+    
     fetchStory();
   }, [params.id]);
 
@@ -50,9 +57,44 @@ export default function StoryPage() {
         <div className="pb-10 w-full max-w-5xl">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-3xl font-bold text-white">{story?.title}</h1>
-            <Link href={`/stories/publish/${params.id}`} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors">
-              Publish
-            </Link>
+            {
+                !story.published && !nextStory &&
+                <Link href={`/stories/publish/${params.id}`} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors">
+                    Publish
+                </Link>
+            }
+            {
+                story.published && !nextStory &&
+                <div className="flex flex-col gap-2">
+                    <select 
+                        className="w-96 px-4 py-4 bg-[#172633] text-white rounded-lg border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
+                        defaultValue={story.nextOptions.options[0]}
+                        onChange={(e) => {
+                            setSelectedOption(e.target.value);
+                        }}
+                    >
+                        {story.nextOptions.options.map((option: string, index: number) => (
+                            <option key={index} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                    <button 
+                        className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
+                        onClick={() => {
+                            continueStory(params.id as string, story.selectedOption || story.nextOptions.options[0]);
+                        }}
+                    >
+                        Continue Story
+                    </button>
+                </div>
+            }
+            {
+                story.published && nextStory &&
+                <Link href={`/stories/${nextStory.id}`} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors">
+                    Next
+                </Link>
+            }
           </div>
           <p className="text-slate-400">Story ID: {params.id}</p>
         </div>

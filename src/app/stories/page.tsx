@@ -12,8 +12,7 @@ export default function Stories() {
   useEffect(() => {
     const fetchStories = async () => {
       const stories = await getStories();
-      console.log(stories);
-      setStories(stories);
+      setStories(stories.filter((story: any) => story.prevStoryId == null));
     };
     fetchStories();
   }, []);

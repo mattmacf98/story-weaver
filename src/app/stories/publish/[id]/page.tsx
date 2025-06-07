@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 
 
 export default function PublishStoryPage() {
-    const { getStory, getVideoUrl } = useStoryWeaver();
+    const { getStory, getVideoUrl, publishStory } = useStoryWeaver();
     const [story, setStory] = useState<any>(null);
     const params = useParams();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -17,7 +17,6 @@ export default function PublishStoryPage() {
         const fetchStory = async () => {
             const story = await getStory(params.id as string);
             setStory(story);
-            console.log(story);
         }
         fetchStory();
     }, [params.id]);
@@ -123,7 +122,7 @@ export default function PublishStoryPage() {
                             </div>
 
                             <div className="flex justify-center mt-8">
-                                <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors">
+                                <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => publishStory(params.id as string)}>
                                     Publish to TikTok
                                 </button>
                             </div>
