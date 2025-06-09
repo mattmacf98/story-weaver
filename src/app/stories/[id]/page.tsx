@@ -62,6 +62,15 @@ export default function StoryPage() {
     await continueStory(params.id as string, selectedOption || story.nextOptions.options[0], undefined, authToken);
   }
 
+  const handleRegenerateStory = async () => {
+    const authToken = await user?.getIdToken();
+    if (story.prevStoryId) {
+      await continueStory(story.prevStoryId, story.selectedOption, story.id, authToken);
+    } else {
+      await startStory(story.prompt, story.id, authToken);
+    }
+  }
+
   if (!story) {
     return <div>Loading...</div>;
   }
@@ -157,9 +166,7 @@ export default function StoryPage() {
               ))}
             </div>
             <div className="mt-6">
-              <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => {
-                startStory(story.prompt, story.id);
-              }}>
+              <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleRegenerateStory}>
                 Generate Missing Resources
               </button>
             </div>
