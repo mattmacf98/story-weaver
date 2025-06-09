@@ -2,21 +2,34 @@
 
 import StoryWeaverNav from "@/components/StoryWeaverNav";
 import StoryTable from "@/components/stories/StoryTable";
+import { useAuth } from "@/contexts/AuthContext";
 import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Stories() {
   const { getStories } = useStoryWeaver();
   const [stories, setStories] = useState<any[]>([]);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push("/login");
+    }
+  }, [user, loading]);
 
   useEffect(() => {
     const fetchStories = async () => {
-      const stories = await getStories();
+      const authToken = await user?.getIdToken();
+      const stories = await getStories(authToken);
       setStories(stories.filter((story: any) => story.prevStoryId == null));
     };
-    fetchStories();
-  }, []);
-
+    if (user) {
+      fetchStories();
+    }
+  }, [user]);
+  
   return (
     <div className="min-h-screen bg-[#0F1A24]">
       <StoryWeaverNav />

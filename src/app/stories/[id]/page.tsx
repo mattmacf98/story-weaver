@@ -1,9 +1,10 @@
 "use client";
 
 import StoryWeaverNav from "@/components/StoryWeaverNav";
+import { useAuth } from "@/contexts/AuthContext";
 import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
 
@@ -24,6 +25,15 @@ export default function StoryPage() {
   const [missingResources, setMissingResources] = useState<string[]>([]);
   const [nextStory, setNextStory] = useState<any>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push("/login");
+    }
+  }, [user, loading]);
+
 
     useEffect(() => {
         if (story) {
@@ -34,17 +44,19 @@ export default function StoryPage() {
 
   useEffect(() => {
     const fetchStory = async () => {
-      const story = await getStory(params.id as string);
+      const authToken = await user?.getIdToken();
+      const story = await getStory(params.id as string, authToken);
       // TODO: this is very inefficient, we should only fetch the next story
-      const allStories = await getStories();
+      const allStories = await getStories(authToken);
       const nextStory = allStories.find((s: any) => s.prevStoryId === story.id) || null;
       setNextStory(nextStory);
       console.log(story);
       setStory(story);
     }
-    
-    fetchStory();
-  }, [params.id]);
+    if (user) {
+      fetchStory();
+    }
+  }, [params.id, user]);
 
   if (!story) {
     return <div>Loading...</div>;

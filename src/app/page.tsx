@@ -1,12 +1,27 @@
 "use client";
 
+import { useAuth } from "@/contexts/AuthContext";
 import StoryWeaverNav from "../components/StoryWeaverNav";
 import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const { startStory } = useStoryWeaver();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  const handleStartStory = async () => {
+    const authToken = await user?.getIdToken();
+    startStory(prompt, undefined, authToken);
+  }
+
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push("/login");
+    }
+  }, [user, loading]);
 
   return (
     <div className="min-h-screen bg-[#0F1A24]">
@@ -27,7 +42,7 @@ export default function Home() {
                 className="w-full bg-transparent text-white px-4 py-3 outline-none placeholder:text-[#8FADCC] pr-[120px]"
                 placeholder="Type your story prompt..."
               />
-              <button className=" bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => startStory(prompt)}>Start Story</button>
+              <button className=" bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleStartStory}>Start Story</button>
             </div>
           </div>
         </section>

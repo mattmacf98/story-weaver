@@ -1,18 +1,19 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 
 const BACKEND_URL = "http://localhost:5000";
 
 interface StoryWeaverContextType {
-  startStory: (prompt: string, storyId?: string) => void;
-  continueStory: (prevStoryId: string, nextOption: string, storyId?: string) => void;
-  getStory: (id: string) => Promise<any>;
-  getStories: () => Promise<any[]>;
-  getImageUrl: (key: string) => Promise<string>;
-  getAudioUrl: (key: string) => Promise<string>;
-  getVideoUrl: (key: string) => Promise<string>;
-  publishStory: (storyId: string) => Promise<any>;
+  startStory: (prompt: string, storyId?: string, authToken?: string) => void;
+  continueStory: (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => void;
+  getStory: (id: string, authToken?: string) => Promise<any>;
+  getStories: (authToken?: string) => Promise<any[]>;
+  getImageUrl: (key: string, authToken?: string) => Promise<string>;
+  getAudioUrl: (key: string, authToken?: string) => Promise<string>;
+  getVideoUrl: (key: string, authToken?: string) => Promise<string>;
+  publishStory: (storyId: string, authToken?: string) => Promise<any>;
 }
 
 const StoryWeaverContext = createContext<StoryWeaverContextType | undefined>(undefined);
@@ -30,7 +31,7 @@ interface StoryWeaverProviderProps {
 }
 
 export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
-  const startStory = async (prompt: string, storyId?: string) => {
+  const startStory = async (prompt: string, storyId?: string, authToken?: string) => {
     const body: any = {
       prompt,
     }
@@ -42,6 +43,7 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify(body),
     });
@@ -49,7 +51,7 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     console.log(data);
   };
 
-  const continueStory = async (prevStoryId: string, nextOption: string, storyId?: string) => {
+  const continueStory = async (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => {
     const body: any = {
       prev_story_id: prevStoryId,
       next_option: nextOption,
@@ -62,6 +64,7 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify(body),
     });
@@ -69,39 +72,62 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     console.log(data);
   }
 
-  const getStory = async (id: string) => {
-    const response = await fetch(`${BACKEND_URL}/api/get_story?id=${id}`);
+  const getStory = async (id: string, authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_story?id=${id}`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
     const data = await response.json();
     return data.data;
   };
 
-  const getStories = async () => {
-    const response = await fetch(`${BACKEND_URL}/api/stories`);
+  const getStories = async (authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/stories`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
     const data = await response.json();
     return data.data;
   };
 
-  const getImageUrl = async (key: string) => {
-    const response = await fetch(`${BACKEND_URL}/api/get_image?key=${key}`);
+  const getImageUrl = async (key: string, authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_image?key=${key}`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
     const data = await response.json();
     return data.data;
   };
 
-  const getAudioUrl = async (key: string) => {
-    const response = await fetch(`${BACKEND_URL}/api/get_audio?key=${key}`);
+  const getAudioUrl = async (key: string, authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_audio?key=${key}`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
     const data = await response.json();
     return data.data;
   };
 
-  const getVideoUrl = async (key: string) => {
-    const response = await fetch(`${BACKEND_URL}/api/get_video?key=${key}`);
+  const getVideoUrl = async (key: string, authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_video?key=${key}`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
     const data = await response.json();
     return data.data;
   };
 
-  const publishStory = async (storyId: string) => {
+  const publishStory = async (storyId: string, authToken?: string) => {
     const response = await fetch(`${BACKEND_URL}/api/publish_story?id=${storyId}`, {
-      method: 'POST'
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
     });
     const data = await response.json();
     return data.data;

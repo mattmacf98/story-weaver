@@ -4,7 +4,8 @@ import StoryWeaverNav from "@/components/StoryWeaverNav";
 import { useEffect } from "react";
 import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 export default function PublishStoryPage() {
@@ -12,14 +13,25 @@ export default function PublishStoryPage() {
     const [story, setStory] = useState<any>(null);
     const params = useParams();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!user && !loading) {
+            router.push("/login");
+        }
+    }, [user, loading]);
 
     useEffect(() => {
         const fetchStory = async () => {
-            const story = await getStory(params.id as string);
+            const authToken = await user?.getIdToken();
+            const story = await getStory(params.id as string, authToken);
             setStory(story);
         }
-        fetchStory();
-    }, [params.id]);
+        if (user) {
+            fetchStory();
+        }
+    }, [params.id, user]);
 
     useEffect(() => {
         const fetchVideoUrl = async () => {
