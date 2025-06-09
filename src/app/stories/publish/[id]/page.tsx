@@ -35,15 +35,23 @@ export default function PublishStoryPage() {
 
     useEffect(() => {
         const fetchVideoUrl = async () => {
+            const authToken = await user?.getIdToken();
             if (story && story.videos && story.videos.videos.length > 0) {
                 const numVideos = story.videos.videos.length;
-                const videoUrl = await getVideoUrl(story.videos.videos[numVideos - 1].key);
+                const videoUrl = await getVideoUrl(story.videos.videos[numVideos - 1].key, authToken);
                 console.log(videoUrl);
                 setVideoUrl(videoUrl);
             }
         }
-        fetchVideoUrl();
-    }, [story]);
+        if (user) {
+            fetchVideoUrl();
+        }
+    }, [story, user]);
+
+    const handlePublishStory = async () => {
+        const authToken = await user?.getIdToken();
+        await publishStory(params.id as string, authToken);
+    }
 
     if (!story || !videoUrl) {
         return <div>Loading...</div>;
@@ -134,7 +142,7 @@ export default function PublishStoryPage() {
                             </div>
 
                             <div className="flex justify-center mt-8">
-                                <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => publishStory(params.id as string)}>
+                                <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handlePublishStory}>
                                     Publish to TikTok
                                 </button>
                             </div>

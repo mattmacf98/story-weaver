@@ -48,7 +48,6 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
       body: JSON.stringify(body),
     });
     const data = await response.json();
-    console.log(data);
   };
 
   const continueStory = async (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => {

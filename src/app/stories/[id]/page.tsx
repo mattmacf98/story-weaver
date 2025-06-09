@@ -50,13 +50,17 @@ export default function StoryPage() {
       const allStories = await getStories(authToken);
       const nextStory = allStories.find((s: any) => s.prevStoryId === story.id) || null;
       setNextStory(nextStory);
-      console.log(story);
       setStory(story);
     }
     if (user) {
       fetchStory();
     }
   }, [params.id, user]);
+
+  const handleContinueStory = async () => {
+    const authToken = await user?.getIdToken();
+    await continueStory(params.id as string, selectedOption || story.nextOptions.options[0], undefined, authToken);
+  }
 
   if (!story) {
     return <div>Loading...</div>;
@@ -93,9 +97,7 @@ export default function StoryPage() {
                     </select>
                     <button 
                         className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
-                        onClick={() => {
-                            continueStory(params.id as string, story.selectedOption || story.nextOptions.options[0]);
-                        }}
+                        onClick={handleContinueStory}
                     >
                         Continue Story
                     </button>
@@ -342,14 +344,18 @@ const TextResource = ({text}: {text: string}) => {
 const ImageResource = ({imageKey}: {imageKey: string}) => {
     const { getImageUrl } = useStoryWeaver();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchImage = async () => {
-            const imageUrl = await getImageUrl(imageKey);
+            const authToken = await user?.getIdToken();
+            const imageUrl = await getImageUrl(imageKey, authToken);
             setImageUrl(imageUrl);
         }
-        fetchImage();
-    }, [imageKey]);
+        if (user) {
+            fetchImage();
+        }
+    }, [imageKey, user]);
 
     if (!imageUrl) {
         return <div>Loading...</div>;
@@ -365,14 +371,18 @@ const ImageResource = ({imageKey}: {imageKey: string}) => {
 const AudioResource = ({audioKey}: {audioKey: string}) => {
     const { getAudioUrl } = useStoryWeaver();
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchAudio = async () => {
-            const audioUrl = await getAudioUrl(audioKey);
+            const authToken = await user?.getIdToken();
+            const audioUrl = await getAudioUrl(audioKey, authToken);
             setAudioUrl(audioUrl);
         }
-        fetchAudio();
-    }, [audioKey]);
+        if (user) {
+            fetchAudio();
+        }
+    }, [audioKey, user]);
 
     if (!audioUrl) {
         return <div>Loading...</div>;
@@ -388,14 +398,18 @@ const AudioResource = ({audioKey}: {audioKey: string}) => {
 const VideoResource = ({videoKey}: {videoKey: string}) => {
     const { getVideoUrl } = useStoryWeaver();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchVideo = async () => {
-            const videoUrl = await getVideoUrl(videoKey);
+            const authToken = await user?.getIdToken();
+            const videoUrl = await getVideoUrl(videoKey, authToken);
             setVideoUrl(videoUrl);
         }
-        fetchVideo();
-    }, [videoKey]);
+        if (user) {
+            fetchVideo();
+        }
+    }, [videoKey, user]);
 
     if (!videoUrl) {
         return <div>Loading...</div>;
