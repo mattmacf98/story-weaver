@@ -71,11 +71,17 @@ export default function StoryPage() {
 
   const handleRegenerateStory = async () => {
     const authToken = await user?.getIdToken();
+    const config = {
+      audience: story.audience,
+      genre: story.genre,
+      pov: story.pov,
+    }
     setRegenerating(true);
     if (story.prevStoryId) {
       await continueStory(story.prevStoryId, story.selectedOption, story.id, authToken);
     } else {
-      await startStory(story.prompt, story.id, authToken);
+
+      await startStory(story.prompt, config, story.id, authToken);
     }
     setRegenerating(false);
   }
@@ -175,7 +181,7 @@ export default function StoryPage() {
               ))}
             </div>
             <div className="mt-6">
-              <button disabled={regenerating} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleRegenerateStory}>
+              <button disabled={regenerating} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleRegenerateStory}>
                 {regenerating ? "Regenerating..." : "Generate Missing Resources"}
               </button>
             </div>

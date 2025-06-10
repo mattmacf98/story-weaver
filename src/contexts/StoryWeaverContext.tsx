@@ -1,12 +1,41 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
 
 const BACKEND_URL = "http://localhost:5000";
 
+export enum Audience {
+  Children = "Children",
+  Teenagers = "Teenagers",
+  Adults = "Adults",
+}
+
+export enum Genre {
+  Fantasy = "Fantasy",
+  SciFi = "Sci-Fi",
+  Mystery = "Mystery",
+  Romance = "Romance",
+  Adventure = "Adventure",
+  Drama = "Drama",
+  Comedy = "Comedy",
+  Action = "Action",
+  Horror = "Horror",
+  Thriller = "Thriller",
+}
+
+export enum POV {
+  FirstPerson = "First Person",
+  ThirdPerson = "Third Person",
+}
+
+export interface StoryConfig {
+  audience: Audience;
+  genre: Genre;
+  pov: POV
+}
+
 interface StoryWeaverContextType {
-  startStory: (prompt: string, storyId?: string, authToken?: string) => void;
+  startStory: (prompt: string, config: StoryConfig, storyId?: string, authToken?: string) => void;
   continueStory: (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => void;
   getStory: (id: string, authToken?: string) => Promise<any>;
   getStories: (authToken?: string) => Promise<any[]>;
@@ -31,9 +60,12 @@ interface StoryWeaverProviderProps {
 }
 
 export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
-  const startStory = async (prompt: string, storyId?: string, authToken?: string) => {
+  const startStory = async (prompt: string, config: StoryConfig, storyId?: string, authToken?: string) => {
     const body: any = {
       prompt,
+      pov: config.pov,
+      audience: config.audience,
+      genre: config.genre,
     }
     if (storyId) {
       body.story_id = storyId;

@@ -2,19 +2,26 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import StoryWeaverNav from "../components/StoryWeaverNav";
-import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
+import { Audience, Genre, POV, StoryConfig, useStoryWeaver } from "@/contexts/StoryWeaverContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+const defaultConfig: StoryConfig = {
+  audience: Audience.Children,
+  genre: Genre.Fantasy,
+  pov: POV.ThirdPerson,
+}
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const { startStory } = useStoryWeaver();
   const { user, loading } = useAuth();
+  const [config, setConfig] = useState<StoryConfig>(defaultConfig);
   const router = useRouter();
 
   const handleStartStory = async () => {
     const authToken = await user?.getIdToken();
-    startStory(prompt, undefined, authToken);
+    startStory(prompt, config, undefined, authToken);
     router.push('/stories');
   }
 
@@ -46,6 +53,48 @@ export default function Home() {
               <button className=" bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleStartStory}>Start Story</button>
             </div>
           </div>
+
+          <div className="flex flex-row gap-8 mt-6 bg-[#172633] rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <label className="text-white font-medium">Audience:</label>
+              <select 
+                className="bg-[#172633] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
+                value={config.audience}
+                onChange={(e) => setConfig({...config, audience: e.target.value as Audience})}
+              >
+                {Object.values(Audience).map((audience) => (
+                  <option key={audience} value={audience}>{audience}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <label className="text-white font-medium">Genre:</label>
+              <select
+                className="bg-[#172633] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
+                value={config.genre}
+                onChange={(e) => setConfig({...config, genre: e.target.value as Genre})}
+              >
+                {Object.values(Genre).map((genre) => (
+                  <option key={genre} value={genre}>{genre}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <label className="text-white font-medium">POV:</label>
+              <select
+                className="bg-[#172633] text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
+                value={config.pov}
+                onChange={(e) => setConfig({...config, pov: e.target.value as POV})}
+              >
+                {Object.values(POV).map((pov) => (
+                  <option key={pov} value={pov}>{pov}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
         </section>
         {/* Continue Your Story Section */}
         <section className="w-full max-w-7xl flex flex-col mb-8">
