@@ -6,6 +6,7 @@ import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import ToastMessageBar from "@/components/toastMessages/ToastMessageBar";
 
 
 export default function PublishStoryPage() {
@@ -61,6 +62,7 @@ export default function PublishStoryPage() {
     return (
       <div className="min-h-screen bg-[#0F1A24]">
         <StoryWeaverNav />
+        <ToastMessageBar />
         <main className="flex flex-col items-center px-4 py-10">
             <div className="pb-10 w-full flex flex-col items-center">
                 <h1 className="text-3xl font-bold text-white">Publish Your Story</h1>

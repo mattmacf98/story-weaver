@@ -35,8 +35,8 @@ export interface StoryConfig {
 }
 
 interface StoryWeaverContextType {
-  startStory: (prompt: string, config: StoryConfig, storyId?: string, authToken?: string) => void;
-  continueStory: (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => void;
+  startStory: (prompt: string, config: StoryConfig, storyId?: string, authToken?: string) => Promise<any>;
+  continueStory: (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => Promise<any>;
   getStory: (id: string, authToken?: string) => Promise<any>;
   getStories: (authToken?: string) => Promise<any[]>;
   getImageUrl: (key: string, authToken?: string) => Promise<string>;
@@ -80,6 +80,9 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
       body: JSON.stringify(body),
     });
     const data = await response.json();
+    const success = response.ok;
+    const message = data.message;
+    return { success, message };
   };
 
   const continueStory = async (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => {
@@ -100,7 +103,12 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
       body: JSON.stringify(body),
     });
     const data = await response.json();
+    console.log("continue story response");
     console.log(data);
+    console.log(response);
+    const success = response.ok;
+    const message = data.message;
+    return { success, message };
   }
 
   const getStory = async (id: string, authToken?: string) => {

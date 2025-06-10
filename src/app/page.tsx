@@ -5,6 +5,8 @@ import StoryWeaverNav from "../components/StoryWeaverNav";
 import { Audience, Genre, POV, StoryConfig, useStoryWeaver } from "@/contexts/StoryWeaverContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ToastMessageBar from "../components/toastMessages/ToastMessageBar";
+import { useToastMessage } from "@/contexts/ToastMessageContext";
 
 const defaultConfig: StoryConfig = {
   audience: Audience.Children,
@@ -14,15 +16,23 @@ const defaultConfig: StoryConfig = {
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
+  const { addToastMessage } = useToastMessage();
+  const [storyCreating, setStoryCreating] = useState(false);
   const { startStory } = useStoryWeaver();
   const { user, loading } = useAuth();
   const [config, setConfig] = useState<StoryConfig>(defaultConfig);
   const router = useRouter();
 
   const handleStartStory = async () => {
+    setStoryCreating(true);
     const authToken = await user?.getIdToken();
-    startStory(prompt, config, undefined, authToken);
-    router.push('/stories');
+    const { success, message } = await startStory(prompt, config, undefined, authToken);
+    setStoryCreating(false);
+    if (success) {
+      addToastMessage(message, "success");
+    } else {
+      addToastMessage(message, "error");
+    }
   }
 
   useEffect(() => {
@@ -34,6 +44,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0F1A24]">
       <StoryWeaverNav />
+      <ToastMessageBar />
       <main className="flex flex-col items-center px-4 py-10">
         {/* Hero Section */}
         <section className="w-full max-w-7xl rounded-xl shadow-lg py-48 px-12 flex flex-col items-center mb-10 bg-[url('/hero-backdrop.png')] bg-cover bg-center">
@@ -50,7 +61,7 @@ export default function Home() {
                 className="w-full bg-transparent text-white px-4 py-3 outline-none placeholder:text-[#8FADCC] pr-[120px]"
                 placeholder="Type your story prompt..."
               />
-              <button className=" bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleStartStory}>Start Story</button>
+              <button disabled={storyCreating} className="bg-[#0D80F2] text-white font-bold w-48 p-2 rounded-lg hover:bg-[#106ad6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleStartStory}>Start Story</button>
             </div>
           </div>
 

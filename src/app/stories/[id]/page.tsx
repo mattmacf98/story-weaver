@@ -1,8 +1,10 @@
 "use client";
 
 import StoryWeaverNav from "@/components/StoryWeaverNav";
+import ToastMessageBar from "@/components/toastMessages/ToastMessageBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
+import { useToastMessage } from "@/contexts/ToastMessageContext";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -21,6 +23,7 @@ const requiredResources = [
 export default function StoryPage() {
   const { getStory, startStory, continueStory, getStories } = useStoryWeaver();
   const params = useParams();
+  const { addToastMessage } = useToastMessage();
   const [story, setStory] = useState<any>(null);
   const [missingResources, setMissingResources] = useState<string[]>([]);
   const [nextStory, setNextStory] = useState<any>(null);
@@ -60,13 +63,14 @@ export default function StoryPage() {
 
   const handleContinueStory = async () => {
     const authToken = await user?.getIdToken();
-    continueStory(params.id as string, selectedOption || story.nextOptions.options[0], undefined, authToken);
+    const { success, message } = await continueStory(params.id as string, selectedOption || story.nextOptions.options[0], undefined, authToken);
+    if (success) {
+      addToastMessage(message, "success");
+    } else {
+      addToastMessage(message, "error");
+    }
     //TODO: in the future, we will get a job id back and the longer running process will be queued => redirect to the status page
     //router.push(`/stories/${params.id}`);
-    // for now just refresh the page
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    router.refresh();
-    
   }
 
   const handleRegenerateStory = async () => {
@@ -78,10 +82,19 @@ export default function StoryPage() {
     }
     setRegenerating(true);
     if (story.prevStoryId) {
-      await continueStory(story.prevStoryId, story.selectedOption, story.id, authToken);
+      const { success, message } = await continueStory(story.prevStoryId, story.selectedOption, story.id, authToken);
+      if (success) {
+        addToastMessage(message, "success");
+      } else {
+        addToastMessage(message, "error");
+      }
     } else {
-
-      await startStory(story.prompt, config, story.id, authToken);
+      const { success, message } = await startStory(story.prompt, config, story.id, authToken);
+      if (success) {
+        addToastMessage(message, "success");
+      } else {
+        addToastMessage(message, "error");
+      }
     }
     setRegenerating(false);
   }
@@ -93,6 +106,7 @@ export default function StoryPage() {
   return (
     <div className="min-h-screen bg-[#0F1A24]">
       <StoryWeaverNav />
+      <ToastMessageBar />
       <main className="flex flex-col items-center px-4 py-10">
         <div className="pb-10 w-full max-w-5xl">
           <div className="flex justify-between items-center mb-2">
