@@ -24,6 +24,7 @@ export default function StoryPage() {
   const [story, setStory] = useState<any>(null);
   const [missingResources, setMissingResources] = useState<string[]>([]);
   const [nextStory, setNextStory] = useState<any>(null);
+  const [regenerating, setRegenerating] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -59,16 +60,24 @@ export default function StoryPage() {
 
   const handleContinueStory = async () => {
     const authToken = await user?.getIdToken();
-    await continueStory(params.id as string, selectedOption || story.nextOptions.options[0], undefined, authToken);
+    continueStory(params.id as string, selectedOption || story.nextOptions.options[0], undefined, authToken);
+    //TODO: in the future, we will get a job id back and the longer running process will be queued => redirect to the status page
+    //router.push(`/stories/${params.id}`);
+    // for now just refresh the page
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    router.refresh();
+    
   }
 
   const handleRegenerateStory = async () => {
     const authToken = await user?.getIdToken();
+    setRegenerating(true);
     if (story.prevStoryId) {
       await continueStory(story.prevStoryId, story.selectedOption, story.id, authToken);
     } else {
       await startStory(story.prompt, story.id, authToken);
     }
+    setRegenerating(false);
   }
 
   if (!story) {
@@ -166,8 +175,8 @@ export default function StoryPage() {
               ))}
             </div>
             <div className="mt-6">
-              <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleRegenerateStory}>
-                Generate Missing Resources
+              <button disabled={regenerating} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handleRegenerateStory}>
+                {regenerating ? "Regenerating..." : "Generate Missing Resources"}
               </button>
             </div>
           </div>

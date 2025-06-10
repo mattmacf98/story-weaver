@@ -51,6 +51,7 @@ export default function PublishStoryPage() {
     const handlePublishStory = async () => {
         const authToken = await user?.getIdToken();
         await publishStory(params.id as string, authToken);
+        router.push(`/stories/${params.id}`);
     }
 
     if (!story || !videoUrl) {

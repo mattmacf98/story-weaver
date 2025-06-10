@@ -15,6 +15,7 @@ export default function Home() {
   const handleStartStory = async () => {
     const authToken = await user?.getIdToken();
     startStory(prompt, undefined, authToken);
+    router.push('/stories');
   }
 
   useEffect(() => {
