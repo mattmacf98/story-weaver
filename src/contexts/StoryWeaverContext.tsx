@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode } from 'react';
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 export enum Audience {
   Children = "Children",
