@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from 'react';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+// https://story-weaver-backend-7715b2910e28.herokuapp.com/
+// http://localhost:5000
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://story-weaver-backend-7715b2910e28.herokuapp.com";
 
 export enum Audience {
   Children = "Children",
