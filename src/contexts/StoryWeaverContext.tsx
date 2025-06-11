@@ -37,6 +37,7 @@ export interface StoryConfig {
 interface StoryWeaverContextType {
   startStory: (prompt: string, config: StoryConfig, storyId?: string, authToken?: string) => Promise<any>;
   continueStory: (prevStoryId: string, nextOption: string, storyId?: string, authToken?: string) => Promise<any>;
+  deleteResource: (pieceType: string, storyId: string, authToken?: string) => Promise<any>;
   getStory: (id: string, authToken?: string) => Promise<any>;
   getStories: (authToken?: string) => Promise<any[]>;
   getImageUrl: (key: string, authToken?: string) => Promise<string>;
@@ -60,6 +61,20 @@ interface StoryWeaverProviderProps {
 }
 
 export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
+
+  const deleteResource = async (pieceType: string, storyId: string, authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/delete_story_resource?resource_type=${pieceType}&story_id=${storyId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
+    const data = await response.json();
+    const success = response.ok;
+    const message = data.message;
+    return { success, message };
+  };
+
   const startStory = async (prompt: string, config: StoryConfig, storyId?: string, authToken?: string) => {
     const body: any = {
       prompt,
@@ -174,6 +189,7 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
 
 
   const value = {
+    deleteResource,
     startStory,
     continueStory,
     getStory,

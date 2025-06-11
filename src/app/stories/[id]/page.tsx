@@ -226,6 +226,19 @@ const PipelineItem = ({stage, completedAt}: {stage: string, completedAt: string}
 
 const ResourcesSection = ({story}: {story: any}) => {
     const [selectedResource, setSelectedResource] = useState<string | null>(null);
+    const { deleteResource } = useStoryWeaver();
+    const { user } = useAuth();
+    const { addToastMessage } = useToastMessage();
+
+    const handleDeleteResource = async (resourceType: string) => {
+        const authToken = await user?.getIdToken();
+        const { success, message } = await deleteResource(resourceType, story.id, authToken);
+        if (success) {
+            addToastMessage(message, "success");
+        } else {
+            addToastMessage(message, "error");
+        }
+    }
     
     if (!story) {
         return <div>Loading...</div>;
@@ -290,6 +303,14 @@ const ResourcesSection = ({story}: {story: any}) => {
                             </div>
                         ))}
                     </div>
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("chunkTexts")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
+                    </div>
                 </div>
             }
 
@@ -301,6 +322,14 @@ const ResourcesSection = ({story}: {story: any}) => {
                                 <TextResource text={prompt} />
                             </div>
                         ))}
+                    </div>
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("imagePrompts")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
                     </div>
                 </div>
             }
@@ -314,12 +343,14 @@ const ResourcesSection = ({story}: {story: any}) => {
                             </div>
                         ))}
                     </div>
-                </div>
-            }
-
-            {selectedResource === "summary" && 
-                <div className="bg-[#172633] rounded-lg p-6">
-                    <TextResource text={story.summary.text} />
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("nextOptions")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
+                    </div>
                 </div>
             }
 
@@ -332,12 +363,28 @@ const ResourcesSection = ({story}: {story: any}) => {
                             </div>
                         ))}
                     </div>
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("images")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
+                    </div>
                 </div>
             }
 
             {selectedResource === "summary" && 
                 <div className="bg-[#172633] rounded-lg p-6">
                     <TextResource text={story.summary} />
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("summary")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
+                    </div>
                 </div>
             }
 
@@ -350,6 +397,14 @@ const ResourcesSection = ({story}: {story: any}) => {
                             </div>
                         ))}
                     </div>
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("audios")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
+                    </div>
                 </div>
             }
 
@@ -361,6 +416,14 @@ const ResourcesSection = ({story}: {story: any}) => {
                                 <VideoResource videoKey={video.key} />
                             </div>
                         ))}
+                    </div>
+                    <div className="flex justify-end mt-4">
+                        <button className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2" onClick={() => handleDeleteResource("videos")}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Delete Resource
+                        </button>
                     </div>
                 </div>
             }
