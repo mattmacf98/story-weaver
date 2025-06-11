@@ -133,7 +133,7 @@ export default function Home() {
               <div className="w-full h-40 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
                 <span className="text-gray-400">Image</span>
               </div>
-              <h3 className="text-lg font-semibold text-[#21364A] mb-1">The Dragon's Lair</h3>
+              <h3 className="text-lg font-semibold text-[#21364A] mb-1">The Dragons Lair</h3>
               <p className="text-sm text-[#8FADCC]">A brave knight confronts a dragon to protect his kingdom.</p>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
+import Link from 'next/link';
 
 export default function StoryWeaverNav() {
   const { user } = useAuth();
@@ -21,8 +22,8 @@ export default function StoryWeaverNav() {
       </div>
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-9 h-10">
-          <a href="/" className="font-medium text-[14px] text-white px-2 rounded-md transition-colors leading-10 hover:bg-white/10">Home</a>
-          <a href="/stories" className="font-medium text-[14px] text-white px-2 rounded-md transition-colors leading-10 hover:bg-white/10">My Stories</a>
+          <Link href="/" className="font-medium text-[14px] text-white px-2 rounded-md transition-colors leading-10 hover:bg-white/10">Home</Link>
+          <Link href="/stories" className="font-medium text-[14px] text-white px-2 rounded-md transition-colors leading-10 hover:bg-white/10">My Stories</Link>
           {user && (
             <button 
               onClick={handleLogout}
