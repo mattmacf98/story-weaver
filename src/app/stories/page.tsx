@@ -5,12 +5,10 @@ import StoryTable from "@/components/stories/StoryTable";
 import ToastMessageBar from "@/components/toastMessages/ToastMessageBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStoryWeaver } from "@/contexts/StoryWeaverContext";
-import { useToastMessage } from "@/contexts/ToastMessageContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Stories() {
-  const { addToastMessage } = useToastMessage();
   const { getStories } = useStoryWeaver();
   const [stories, setStories] = useState<any[]>([]);
   const { user, loading } = useAuth();
@@ -26,11 +24,10 @@ export default function Stories() {
     const fetchStories = async () => {
       const authToken = await user?.getIdToken();
       const stories = await getStories(authToken);
-      setStories(stories.filter((story: any) => story.prevStoryId == null));
+      setStories(stories);
     };
     if (user) {
       fetchStories();
-      addToastMessage("Stories loaded", "info");
     }
   }, [user]);
   

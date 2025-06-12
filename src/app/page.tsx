@@ -18,9 +18,10 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const { addToastMessage } = useToastMessage();
   const [storyCreating, setStoryCreating] = useState(false);
-  const { startStory } = useStoryWeaver();
+  const { startStory, getStories } = useStoryWeaver();
   const { user, loading } = useAuth();
   const [config, setConfig] = useState<StoryConfig>(defaultConfig);
+  const [stories, setStories] = useState<any[]>([]);
   const router = useRouter();
 
   const handleStartStory = async () => {
@@ -40,6 +41,18 @@ export default function Home() {
       router.push("/login");
     }
   }, [user, loading]);
+
+  useEffect(() => {
+    const fetchStories = async () => {
+      const authToken = await user?.getIdToken();
+      const stories = await getStories(authToken);
+      console.log(stories);
+      setStories(stories);
+    };
+    if (user) {
+      fetchStories();
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-[#0F1A24]">
@@ -112,33 +125,42 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-white mb-4">Continue Your Story</h2>
           <div className="flex flex-row gap-6">
             {/* Story Card 1 */}
-            <div className="bg-white rounded-lg shadow-md p-4 flex-1 min-w-[220px]">
-              <div className="w-full h-40 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
-                {/* Placeholder for story image */}
-                <span className="text-gray-400">Image</span>
-              </div>
-              <h3 className="text-lg font-semibold text-[#21364A] mb-1">The Enchanted Forest</h3>
-              <p className="text-sm text-[#8FADCC]">In a mystical forest, a young adventurer discovers a hidden path.</p>
-            </div>
-            {/* Story Card 2 */}
-            <div className="bg-white rounded-lg shadow-md p-4 flex-1 min-w-[220px]">
-              <div className="w-full h-40 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
-                <span className="text-gray-400">Image</span>
-              </div>
-              <h3 className="text-lg font-semibold text-[#21364A] mb-1">The Lost Princess</h3>
-              <p className="text-sm text-[#8FADCC]">A princess, lost in a magical realm, seeks her way back home.</p>
-            </div>
-            {/* Story Card 3 */}
-            <div className="bg-white rounded-lg shadow-md p-4 flex-1 min-w-[220px]">
-              <div className="w-full h-40 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
-                <span className="text-gray-400">Image</span>
-              </div>
-              <h3 className="text-lg font-semibold text-[#21364A] mb-1">The Dragons Lair</h3>
-              <p className="text-sm text-[#8FADCC]">A brave knight confronts a dragon to protect his kingdom.</p>
-            </div>
+            {stories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3).map((story) => (
+              <StoryCard key={story.id} story={story} />
+            ))}
           </div>
         </section>
       </main>
     </div>
   );
+}
+
+const StoryCard = ({story}: {story: any}) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { getImageUrl } = useStoryWeaver();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchImageUrl = async () => {
+      const authToken = await user?.getIdToken();
+      console.log(story);
+      const imageUrl = await getImageUrl(story.images.images[0].key, authToken);
+      setImageUrl(imageUrl);
+    }
+    fetchImageUrl();
+  }, [story]);
+
+  return (
+    <div key={story.id} className="bg-white rounded-lg shadow-md p-4 flex-col w-xl h-[400px]" onClick={() => router.push(`/stories/${story.id}`)}>
+      <h3 className="text-lg font-semibold text-[#21364A] mb-1">{story.title}</h3>
+      <div className="w-full h-80 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
+        {imageUrl ? (
+          <img src={imageUrl} alt={story.title} className="w-full h-full object-contain rounded-lg" />
+        ) : (
+          <span className="text-gray-400">No Image</span>
+        )}
+      </div>
+    </div>
+  )
 }

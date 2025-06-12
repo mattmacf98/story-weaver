@@ -10,8 +10,8 @@ export default function StoryTable({ stories }: { stories: any[] }) {
           <div className="px-4 py-3 w-[275px]">Created</div>
           <div className="px-4 py-3 w-[171px]">Action</div>
         </div>
-        {stories.map((story, idx) => (
-          <StoryRow key={story.title + idx} title={story.title} status={"IN PROGRESS"} createdAt={story.createdAt} id={story.id} />
+        {stories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((story, idx) => (
+          <StoryRow key={story.title + idx} title={story.title} status={story.published ? "PUBLISHED" : "IN PROGRESS"} createdAt={story.createdAt} id={story.id} />
         ))}
       </div>
     </div>

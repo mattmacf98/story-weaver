@@ -103,6 +103,8 @@ export default function StoryPage() {
     return <div>Loading...</div>;
   }
 
+  const publishDisabled = missingResources.length > 0;
+
   return (
     <div className="min-h-screen bg-[#0F1A24]">
       <StoryWeaverNav />
@@ -113,9 +115,12 @@ export default function StoryPage() {
             <h1 className="text-3xl font-bold text-white">{story?.title}</h1>
             {
                 !story.published && !nextStory &&
-                <Link href={`/stories/publish/${params.id}`} className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors">
+                <button 
+                    onClick={() => router.push(`/stories/publish/${params.id}`)} disabled={publishDisabled}
+                    className={`px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors ${publishDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
                     Publish
-                </Link>
+                </button>
             }
             {
                 story.published && !nextStory &&
