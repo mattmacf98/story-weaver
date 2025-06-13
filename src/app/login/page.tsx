@@ -36,6 +36,7 @@ export default function LoginPage() {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
       } catch (error) {
+        console.error(error);
         setError("Failed to create account");
         setLoading(false);
         return;
@@ -44,6 +45,7 @@ export default function LoginPage() {
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
+        console.error(error);
         setError("Failed to sign in");
         setLoading(false);
         return;
