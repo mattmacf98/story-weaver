@@ -1,9 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from 'react';
-// https://story-weaver-backend-7715b2910e28.herokuapp.com/
-// http://localhost:5000
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://story-weaver-backend-7715b2910e28.herokuapp.com";
+import { BACKEND_URL } from '@/lib/constants';
 
 export enum Audience {
   Children = "Children",
@@ -119,9 +117,6 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
       body: JSON.stringify(body),
     });
     const data = await response.json();
-    console.log("continue story response");
-    console.log(data);
-    console.log(response);
     const success = response.ok;
     const message = data.message;
     return { success, message };

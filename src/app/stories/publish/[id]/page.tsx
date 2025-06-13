@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import ToastMessageBar from "@/components/toastMessages/ToastMessageBar";
+import { BACKEND_URL } from "@/lib/constants";
 
 
 export default function PublishStoryPage() {
@@ -14,14 +15,31 @@ export default function PublishStoryPage() {
     const [story, setStory] = useState<any>(null);
     const params = useParams();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const [videoKey, setVideoKey] = useState<string | null>(null);
     const { user, loading } = useAuth();
+    const [tiktokAccessToken, setTiktokAccessToken] = useState<string | null>(null);
     const router = useRouter();
-
+    
     useEffect(() => {
         if (!user && !loading) {
             router.push("/login");
         }
     }, [user, loading]);
+
+    useEffect(() => {
+        const accessToken = localStorage.getItem('tiktok_access_token');
+        const expirationDate = localStorage.getItem('tiktok_token_expiration');
+        if (accessToken && expirationDate) {
+            const now = new Date();
+            const expiration = new Date(expirationDate);
+            if (now > expiration) {
+                localStorage.removeItem('tiktok_access_token');
+                localStorage.removeItem('tiktok_token_expiration');
+            } else {
+                setTiktokAccessToken(accessToken);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         const fetchStory = async () => {
@@ -40,8 +58,8 @@ export default function PublishStoryPage() {
             if (story && story.videos && story.videos.videos.length > 0) {
                 const numVideos = story.videos.videos.length;
                 const videoUrl = await getVideoUrl(story.videos.videos[numVideos - 1].key, authToken);
-                console.log(videoUrl);
                 setVideoUrl(videoUrl);
+                setVideoKey(story.videos.videos[numVideos - 1].key);
             }
         }
         if (user) {
@@ -49,10 +67,24 @@ export default function PublishStoryPage() {
         }
     }, [story, user]);
 
-    const handlePublishStory = async () => {
+
+    const authorizeTikTok = async() => {
+        window.location.href = `${BACKEND_URL}/api/oauth`
+    }
+
+    const handleUploadVideo = async (videoKey: string) => {
         const authToken = await user?.getIdToken();
+        await fetch(`${BACKEND_URL}/api/tiktok/upload`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({videoKey: videoKey, accessToken: tiktokAccessToken, title: story.title}),
+            }
+        )
         await publishStory(params.id as string, authToken);
-        router.push(`/stories/${params.id}`);
     }
 
     if (!story || !videoUrl) {
@@ -144,11 +176,28 @@ export default function PublishStoryPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-center mt-8">
-                                <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={handlePublishStory}>
-                                    Publish to TikTok
-                                </button>
-                            </div>
+
+                            {
+                                !tiktokAccessToken && (
+                                    <div className="flex justify-center mt-8">
+                                        <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={authorizeTikTok}>
+                                            Authorize TikTok
+                                        </button>
+                                    </div>
+                                )
+                            }
+                            
+
+                            {
+                                tiktokAccessToken && (
+                                    <div className="mt-8">
+                                        <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => handleUploadVideo(videoKey!)}>
+                                            Upload Video
+                                        </button>
+                                    </div>
+                                )
+                            }
+
                         </div>
                     </div>
                 </div>

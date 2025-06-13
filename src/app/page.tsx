@@ -46,7 +46,6 @@ export default function Home() {
     const fetchStories = async () => {
       const authToken = await user?.getIdToken();
       const stories = await getStories(authToken);
-      console.log(stories);
       setStories(stories);
     };
     if (user) {
@@ -144,7 +143,6 @@ const StoryCard = ({story}: {story: any}) => {
   useEffect(() => {
     const fetchImageUrl = async () => {
       const authToken = await user?.getIdToken();
-      console.log(story);
       const imageUrl = await getImageUrl(story.images.images[0].key, authToken);
       setImageUrl(imageUrl);
     }

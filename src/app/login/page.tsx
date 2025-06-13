@@ -34,20 +34,16 @@ export default function LoginPage() {
         return;
       }
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        console.log(userCredential);
+        await createUserWithEmailAndPassword(auth, email, password);
       } catch (error) {
-        console.error(error);
         setError("Failed to create account");
         setLoading(false);
         return;
       }
     } else {
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log(userCredential);
+        await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
-        console.error(error);
         setError("Failed to sign in");
         setLoading(false);
         return;
