@@ -1,12 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BACKEND_URL } from "@/lib/constants";
 import ToastMessageBar from "@/components/toastMessages/ToastMessageBar";
 import StoryWeaverNav from "@/components/StoryWeaverNav";
 
 export default function TikTokAuth() {
+
+    return (
+        <div className="min-h-screen bg-[#0F1A24]">
+            <StoryWeaverNav />
+            <ToastMessageBar />
+            <Suspense fallback={<AuthLoadingFallback />}>
+                <AuthLoading />
+            </Suspense>
+        </div>
+    );
+}
+
+const AuthLoadingFallback = () => {
+    return (
+        <div className="flex items-center space-x-3">
+            <div className="w-6 h-6 border-t-2 border-[#0D80F2] border-solid rounded-full animate-spin"></div>
+            <span className="text-white">Authenticating with TikTok...</span>
+        </div>
+    );
+}
+
+const AuthLoading = () => {
     const [authState, setAuthState] = useState<'loading' | 'success' | 'failed'>('loading');
     const searchParams = useSearchParams();
 
@@ -50,16 +72,7 @@ export default function TikTokAuth() {
     }, [searchParams]);
 
     return (
-        <div className="min-h-screen bg-[#0F1A24]">
-            <StoryWeaverNav />
-            <ToastMessageBar />
-            <div className="flex flex-col items-center justify-center h-screen">
-                {authState === 'loading' && (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 border-t-2 border-[#0D80F2] border-solid rounded-full animate-spin"></div>
-                        <span className="text-white">Authenticating with TikTok...</span>
-                    </div>
-                )}
+        <div className="flex flex-col items-center justify-center h-screen">
                 {authState === 'success' && (
                     <div className="flex items-center space-x-3">
                         <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +89,6 @@ export default function TikTokAuth() {
                         <span className="text-white">Failed to authenticate with TikTok</span>
                     </div>
                 )}
-            </div>
         </div>
     );
 }
