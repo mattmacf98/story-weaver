@@ -18,6 +18,7 @@ export default function PublishStoryPage() {
     const [videoKey, setVideoKey] = useState<string | null>(null);
     const { user, loading } = useAuth();
     const [tiktokAccessToken, setTiktokAccessToken] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
     const router = useRouter();
     
     useEffect(() => {
@@ -73,6 +74,7 @@ export default function PublishStoryPage() {
     }
 
     const handleUploadVideo = async (videoKey: string) => {
+        setIsUploading(true);
         const authToken = await user?.getIdToken();
         await fetch(`${BACKEND_URL}/api/tiktok/upload`,
             {
@@ -85,6 +87,7 @@ export default function PublishStoryPage() {
             }
         )
         await publishStory(params.id as string, authToken);
+        setIsUploading(false);
     }
 
     if (!story || !videoUrl) {
@@ -111,88 +114,66 @@ export default function PublishStoryPage() {
                     <div className="mt-8 bg-[#172633] rounded-lg p-6">
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-white mb-1">Title</label>
-                                <input
-                                    type="text"
-                                    id="title"
-                                    className="w-full px-3 py-2 bg-[#0F1A24] text-white rounded-md border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
-                                    placeholder="Enter title..."
-                                />
-                            </div>
-                            
-                            <div>
-                                <label htmlFor="hashtags" className="block text-sm font-medium text-white mb-1">Hashtags</label>
-                                <input
-                                    type="text"
-                                    id="hashtags" 
-                                    className="w-full px-3 py-2 bg-[#0F1A24] text-white rounded-md border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
-                                    placeholder="#story #ai ..."
-                                />
+                                <h2 className="text-lg font-semibold text-white mb-2">Title</h2>
+                                <div className="w-full text-xl text-white">
+                                    {story.title}
+                                </div>
                             </div>
 
                             <div>
-                                <label htmlFor="caption" className="block text-sm font-medium text-white mb-1">Caption</label>
-                                <textarea
-                                    id="caption"
-                                    rows={3}
-                                    className="w-full px-3 py-2 bg-[#0F1A24] text-white rounded-md border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
-                                    placeholder="Write a caption..."
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-white mb-1">Next Options</label>
+                                <label className="text-lg font-semibold text-white mb-2">Next Option Suggestions</label>
                                 <div className="space-y-2">
-                                <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Add new option..."
-                                            className="flex-1 px-3 py-2 bg-[#0F1A24] text-white rounded-md border border-gray-600 focus:outline-none focus:border-[#0D80F2]"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                                                    const newOptions = [...(story.nextOptions?.options || [])];
-                                                    newOptions.push(e.currentTarget.value.trim());
-                                                    setStory({...story, nextOptions: {...story.nextOptions, options: newOptions}});
-                                                    e.currentTarget.value = '';
-                                                }
-                                            }}
-                                        />
-                                    </div>
                                     {story.nextOptions?.options?.map((option: string, index: number) => (
-                                        <div key={index} className="flex items-center justify-between">
-                                            <span className="text-white mr-8">{option}</span>
-                                            <button 
-                                                onClick={() => {
-                                                    const newOptions = [...story.nextOptions.options];
-                                                    newOptions.splice(index, 1);
-                                                    setStory({...story, nextOptions: {...story.nextOptions, options: newOptions}});
-                                                }}
-                                                className="text-gray-400 hover:text-white"
-                                            >
-                                                ✕
-                                            </button>
+                                        <div key={index} className="text-white flex items-center">
+                                            <span className="w-2 h-2 bg-[#0D80F2] rounded-full mr-2"></span>
+                                            {option}
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-
                             {
-                                !tiktokAccessToken && (
-                                    <div className="flex justify-center mt-8">
-                                        <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={authorizeTikTok}>
-                                            Authorize TikTok
-                                        </button>
+                                isUploading && (
+                                    <div className="flex items-center justify-center">
+                                        <div className="w-6 h-6 border-t-2 border-[#0D80F2] border-solid rounded-full animate-spin"></div>
+                                        <span className="text-white">Uploading video...</span>
                                     </div>
                                 )
                             }
-                            
 
                             {
-                                tiktokAccessToken && (
-                                    <div className="mt-8">
-                                        <button className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" onClick={() => handleUploadVideo(videoKey!)}>
-                                            Upload Video
+                                !isUploading && (
+                                    <div className="flex gap-4 mt-8">
+                                        {!tiktokAccessToken && (
+                                            <button 
+                                                className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" 
+                                                onClick={authorizeTikTok}
+                                            >
+                                                Authorize TikTok
+                                            </button>
+                                        )}
+        
+                                        {tiktokAccessToken && (
+                                            <button 
+                                                className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
+                                                onClick={() => handleUploadVideo(videoKey!)}
+                                            >
+                                                Upload to TikTok
+                                            </button>
+                                        )}
+        
+                                        <button
+                                            onClick={() => {
+                                                const link = document.createElement('a');
+                                                link.href = videoUrl;
+                                                link.download = 'video.mp4';
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            }}
+                                            className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
+                                        >
+                                            Download Video
                                         </button>
                                     </div>
                                 )
