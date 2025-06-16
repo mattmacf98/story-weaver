@@ -21,7 +21,7 @@ const requiredResources = [
 ]
 
 export default function StoryPage() {
-  const { getStory, startStory, continueStory, getStories } = useStoryWeaver();
+  const { getStory, startStory, continueStory, getStories, getLastestJobForStory } = useStoryWeaver();
   const params = useParams();
   const { addToastMessage } = useToastMessage();
   const [story, setStory] = useState<any>(null);
@@ -29,6 +29,7 @@ export default function StoryPage() {
   const [nextStory, setNextStory] = useState<any>(null);
   const [regenerating, setRegenerating] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [latestJobStatus, setLatestJobStatus] = useState<any>(null);
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -39,12 +40,24 @@ export default function StoryPage() {
   }, [user, loading]);
 
 
-    useEffect(() => {
+   useEffect(() => {
         if (story) {
             const missing = requiredResources.filter((resource) => !story[resource]);
             setMissingResources(missing);
         }
-    }, [story]);
+   }, [story]);
+
+  useEffect(() => {
+      const fetchLatestJob = async () => {
+        const authToken = await user?.getIdToken();
+        const latestJob = await getLastestJobForStory(story.id, authToken);
+        setLatestJobStatus(latestJob.status);
+      }
+
+      if (story) {
+        fetchLatestJob();
+      }
+  }, [story]);
 
   useEffect(() => {
     const fetchStory = async () => {
@@ -58,6 +71,8 @@ export default function StoryPage() {
     }
     if (user) {
       fetchStory();
+      const interval = setInterval(fetchStory, 10000);
+      return () => clearInterval(interval);
     }
   }, [params.id, user]);
 
@@ -154,6 +169,22 @@ export default function StoryPage() {
             }
           </div>
           <p className="text-slate-400">Story ID: {params.id}</p>
+          {latestJobStatus && (
+            <div className="flex flex-row gap-2">
+              <p className={`flex items-center gap-2 ${
+                latestJobStatus === 'completed' ? 'text-green-500' :
+                latestJobStatus === 'failed' ? 'text-red-500' :
+                latestJobStatus === 'running' ? 'text-yellow-500' :
+                'text-orange-500'
+              }`}>
+                Status: {latestJobStatus}
+                {latestJobStatus === 'completed' && <span>✓</span>}
+                {latestJobStatus === 'failed' && <span>✗</span>}
+                {latestJobStatus === 'running' && <span>⟳</span>}
+                {latestJobStatus === 'pending' && <span>⌛</span>}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="pb-10 w-full max-w-5xl">
@@ -189,7 +220,7 @@ export default function StoryPage() {
           </div>
         </div>
 
-        {missingResources.length > 0 && (
+        {missingResources.length > 0 && (latestJobStatus === "failed" || latestJobStatus === "completed") && (
           <div className="pb-10 w-full max-w-5xl">
             <h3 className="text-xl font-bold mb-8 text-white">Missing Resources</h3>
             <div className="flex flex-row gap-4">

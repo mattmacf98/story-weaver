@@ -26,8 +26,11 @@ export default function Stories() {
       const stories = await getStories(authToken);
       setStories(stories);
     };
+
     if (user) {
       fetchStories();
+      const interval = setInterval(fetchStories, 10000);
+      return () => clearInterval(interval);
     }
   }, [user]);
   

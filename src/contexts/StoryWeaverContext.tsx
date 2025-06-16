@@ -43,6 +43,7 @@ interface StoryWeaverContextType {
   getAudioUrl: (key: string, authToken?: string) => Promise<string>;
   getVideoUrl: (key: string, authToken?: string) => Promise<string>;
   publishStory: (storyId: string, authToken?: string) => Promise<any>;
+  getLastestJobForStory: (storyId: string, authToken?: string) => Promise<any>;
 }
 
 const StoryWeaverContext = createContext<StoryWeaverContextType | undefined>(undefined);
@@ -132,6 +133,18 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     return data.data;
   };
 
+  const getLastestJobForStory = async (storyId: string, authToken?: string) => {
+    const response = await fetch(`${BACKEND_URL}/api/get_story_job?story_id=${storyId}`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
+    const data = await response.json();
+
+    console.log(data);
+    return data.data;
+  }
+
   const getStories = async (authToken?: string) => {
     const response = await fetch(`${BACKEND_URL}/api/stories`, {
       headers: {
@@ -194,6 +207,7 @@ export function StoryWeaverProvider({ children }: StoryWeaverProviderProps) {
     getAudioUrl,
     getVideoUrl,
     publishStory,
+    getLastestJobForStory,
   };
 
   return (

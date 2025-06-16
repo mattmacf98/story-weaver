@@ -86,8 +86,13 @@ export default function PublishStoryPage() {
                 body: JSON.stringify({videoKey: videoKey, accessToken: tiktokAccessToken, title: story.title}),
             }
         )
-        await publishStory(params.id as string, authToken);
+        await markAsPublished();
         setIsUploading(false);
+    }
+
+    const markAsPublished = async () => {
+        const authToken = await user?.getIdToken();
+        await publishStory(params.id as string, authToken);
     }
 
     if (!story || !videoUrl) {
@@ -141,44 +146,63 @@ export default function PublishStoryPage() {
                                 )
                             }
 
-                            {
-                                !isUploading && (
-                                    <div className="flex gap-4 mt-8">
-                                        {!tiktokAccessToken && (
-                                            <button 
-                                                className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors" 
-                                                onClick={authorizeTikTok}
-                                            >
-                                                Authorize TikTok
-                                            </button>
+                            <div>
+                                <h2 className="text-lg font-semibold text-white mb-4">Publish Actions</h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        { !isUploading && (
+                                            <div className="flex gap-2 w-full">
+                                                <button
+                                                    onClick={() => {
+                                                        const link = document.createElement('a');
+                                                        link.href = videoUrl;
+                                                        link.download = 'video.mp4';
+                                                        document.body.appendChild(link);
+                                                        link.click();
+                                                        document.body.removeChild(link);
+                                                    }}
+                                                    className="w-1/2 px-4 py-2 bg-[#172633] text-white font-medium rounded-lg hover:bg-[#1f3142] transition-colors border border-slate-600"
+                                                >
+                                                    Download Video
+                                                </button>
+                                                {
+                                                    !story.published && (
+                                                        <button 
+                                                            className="w-1/2 px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
+                                                            onClick={() => markAsPublished()}
+                                                        >
+                                                            Mark as Published
+                                                        </button>
+                                                    )
+                                                }
+                                            </div>
                                         )}
-        
-                                        {tiktokAccessToken && (
-                                            <button 
-                                                className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
-                                                onClick={() => handleUploadVideo(videoKey!)}
-                                            >
-                                                Upload to TikTok
-                                            </button>
-                                        )}
-        
-                                        <button
-                                            onClick={() => {
-                                                const link = document.createElement('a');
-                                                link.href = videoUrl;
-                                                link.download = 'video.mp4';
-                                                document.body.appendChild(link);
-                                                link.click();
-                                                document.body.removeChild(link);
-                                            }}
-                                            className="px-4 py-2 bg-[#0D80F2] text-white font-bold rounded-lg hover:bg-[#106ad6] transition-colors"
-                                        >
-                                            Download Video
-                                        </button>
                                     </div>
-                                )
-                            }
 
+                                    <div>
+                                        <h3 className="text-md font-medium text-slate-300 mb-2">Direct Publish Actions</h3>
+                                        { !isUploading && (
+                                            <div className="space-y-2">
+                                                {!tiktokAccessToken ? (
+                                                    <button 
+                                                        className="w-1/2 px-4 py-2 bg-[#172633] text-white font-medium rounded-lg hover:bg-[#1f3142] transition-colors border border-slate-600"
+                                                        onClick={authorizeTikTok}
+                                                    >
+                                                        Connect TikTok Account
+                                                    </button>
+                                                ) : (
+                                                    <button 
+                                                        className="w-1/2 px-4 py-2 bg-[#172633] text-white font-medium rounded-lg hover:bg-[#1f3142] transition-colors border border-slate-600"
+                                                        onClick={() => handleUploadVideo(videoKey!)}
+                                                    >
+                                                        Publish to TikTok
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
